@@ -14,14 +14,16 @@ class DigitalDisplay(Thread):
         # Until Pi7SegPy is refactored, class can only be instanciated once
         if DigitalDisplay.__initialized_once is True:
             raise RuntimeError("Digital Display can only be instanciated once")
-        super().__init__(daemon=False)
+        else:
+            DigitalDisplay.__initialized_once = True
+
+        super().__init__(daemon=True)
 
         pi7seg.init(data_pin, clock_pin,latch_pin,
                      registers,no_of_displays, common_cathode_type)
 
         atexit.register( self.clear_display )
         self.name = 'DigitalDisplay Thread'
-        self.daemon = True
         self.__EMPTY_DISPLAY = [ ' ' ] * no_of_displays
         self.__chars_to_display = list(self.__EMPTY_DISPLAY)
         self.start()

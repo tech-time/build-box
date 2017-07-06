@@ -4,6 +4,7 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 
+
 class GraphicDisplay:
     def __init__(self):
         RST = 25
@@ -26,7 +27,6 @@ class GraphicDisplay:
     def displaytext(self, x, y, text):
         self.draw.text((x, y),   text,  font=self.font, fill=255)
         self.refresh()
-
 
     def refresh(self):
         self.disp.image(self.image)

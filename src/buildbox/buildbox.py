@@ -1,15 +1,16 @@
 from .devices import DigitalDisplay, GraphicDisplay
 import time
 
+
 def main():
     print("Hello World!")
     dd = DigitalDisplay()
     gd = GraphicDisplay()
-    gd.displaytext(2,2, "Cool Dude!")
+    gd.displaytext(2, 2, "Cool Dude!")
     gd.clear()
-    gd.displaytext(2,2, "Dude Cool!")
+    gd.displaytext(2, 2, "Dude Cool!")
 
-    while(1):
+    while True:
         dd.display('COOL')
         time.sleep(0.5)
         dd.display('dUdE')
@@ -17,5 +18,4 @@ def main():
 
 
 if __name__ == "__main__":
-    # execute only if run as a script
     main()

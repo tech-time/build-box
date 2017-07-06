@@ -13,7 +13,7 @@ def main():
     while True:
         dd.display('COOL')
         time.sleep(0.5)
-        dd.display('dUdE')
+        dd.display('dudE')
         time.sleep(0.5)
 
 

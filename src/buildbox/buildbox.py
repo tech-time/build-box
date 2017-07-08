@@ -12,8 +12,12 @@ def main():
 
     while True:
         dd.display('COOL')
+        gd.clear()
+        gd.displaytext(2, 2, "Dude Cool!")
         time.sleep(0.5)
-        dd.display('dUdE')
+        dd.display('dudE')
+        gd.clear()
+        gd.displaytext(2, 2, "Cool Dude!")
         time.sleep(0.5)
 
 

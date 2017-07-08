@@ -1,8 +1,6 @@
 from threading import Thread
 import atexit
-
-import Pi7SegPy as pi7seg
-
+import time
 
 class DigitalDisplay(Thread):
 
@@ -10,9 +8,9 @@ class DigitalDisplay(Thread):
     __EMPTY_DISPLAY = None
 
     def __init__(
-            self, data_pin=5, clock_pin=13, latch_pin=6,
-            registers=2, no_of_displays=4,
-            common_cathode_type=True):
+            self, data_pin=None, clock_pin=None, latch_pin=None,
+            registers=None, no_of_displays=4,
+            common_cathode_type=None):
 
         # Until Pi7SegPy is refactored, class can only be instanciated once
         if DigitalDisplay.__initialized_once is True:
@@ -22,22 +20,23 @@ class DigitalDisplay(Thread):
 
         super().__init__(daemon=True)
 
-        pi7seg.init(data_pin, clock_pin, latch_pin,
-                    registers, no_of_displays, common_cathode_type)
-
         atexit.register( self.clear_display )
         self.name = 'DigitalDisplay Thread'
-        self.__EMPTY_DISPLAY = [' '] * no_of_displays
-        self.__chars_to_display = list(self.__EMPTY_DISPLAY)
+        self.__EMPTY_DISPLAY = ' ' * no_of_displays
+        self.__chars_to_display = self.__EMPTY_DISPLAY
         self.start()
 
     def clear_display(self):
-        self.__chars_to_display = list(self.__EMPTY_DISPLAY)
-        pi7seg.show(self.__EMPTY_DISPLAY)
+        self.__chars_to_display = self.__EMPTY_DISPLAY
+        print(self.__EMPTY_DISPLAY)
 
     def run(self):
+        last_displayed = None
         while True:
-            pi7seg.show(self.__chars_to_display)
+            if self.__chars_to_display !=  last_displayed:
+                last_displayed = self.__chars_to_display
+                print("7SEG: " + self.__chars_to_display)
+            time.sleep(0.05)
 
     def display(self, value):
-        self.__chars_to_display = list(value)
+        self.__chars_to_display = value

@@ -54,9 +54,6 @@ class SSD1306_128_64(threading.Thread):
 
 
 
-
-
-
 class GraphicDisplay:
     def __init__(self):
         RST = 25

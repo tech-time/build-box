@@ -1,4 +1,4 @@
-TODO: Add a not on virtualenv setup
+TODO: Add a note on virtualenv setup
 
 Activate virtualenv:
 . ~/projects/build-box-venv/bin/activate

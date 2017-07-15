@@ -6,9 +6,6 @@ except ImportError:
           "Using simulator instead.")
     from .leddigitssimulator import DigitalDisplay
 
-try:
-    from .oledmono import GraphicDisplay
-except ImportError:
-    GraphicDisplay = None
+from .oledmono import GraphicDisplay
 
 __all__ = [DigitalDisplay, GraphicDisplay]

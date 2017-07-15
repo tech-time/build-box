@@ -33,7 +33,7 @@ class DigitalDisplay(Thread):
     def run(self):
         last_displayed = None
         while True:
-            if self.__chars_to_display !=  last_displayed:
+            if self.__chars_to_display != last_displayed:
                 last_displayed = self.__chars_to_display
                 print("7SEG: " + self.__chars_to_display)
             time.sleep(0.05)

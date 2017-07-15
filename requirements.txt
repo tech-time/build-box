@@ -1,10 +1,6 @@
 Adafruit-GPIO==1.0.3
-Adafruit-PureIO==0.2.1
 Adafruit-SSD1306==1.6.1
-olefile==0.44
 Pi7SegPy==0.1.1
-PiShiftPy==0.1.1
-py==1.4.34
+Pillow
+# Dev only
 pytest==3.1.3
-RPi.GPIO==0.6.3
-spidev==3.2

@@ -1,6 +1,7 @@
 from threading import Thread
 import atexit
 import time
+from .emulator import bbemu
 
 class DigitalDisplay(Thread):
 
@@ -36,6 +37,7 @@ class DigitalDisplay(Thread):
             if self.__chars_to_display != last_displayed:
                 last_displayed = self.__chars_to_display
                 print("7SEG: " + self.__chars_to_display)
+                bbemu.update_digital_display(self.__chars_to_display)
             time.sleep(0.05)
 
     def display(self, value):

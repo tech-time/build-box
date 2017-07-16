@@ -1,6 +1,7 @@
 import threading
 
-from tkinter import Tk, Label
+from tkinter import Tk, Label, StringVar
+from tkinter.font import Font
 from PIL import ImageTk
 
 
@@ -10,24 +11,32 @@ class BuildBoxEmulator(threading.Thread):
         threading.Thread.__init__(self)
         self._image = None
         self._panel = None
-        self._top = None
         self._tk_image = None
+        self._top = None
+        self._digital_display_value = None
         self.start()
 
     def run(self):
         self._top = Tk()
+        self._digital_display_value = StringVar()
+        self._digital_display_value.set("42.17")
+        # cf. https://www.google.fr/search?q=digital+7+ttf
+        myFont = Font(family="Digital-7", size=42)  # ,  weight="bold")
+        label = Label(self._top, textvariable=self._digital_display_value, font=myFont, fg="red", bg="black")
+        label.pack()
         self._top.mainloop()
+
+    def update_digital_display(self, string):
+        self._digital_display_value.set(string)
 
     def update_graphic_display(self, image):
         self._image = image
         self._tk_image = ImageTk.PhotoImage(self._image)
-        #self._panel = PanedWindow()
-        if self._panel:
-            self._panel.pack_forget()
-        self._panel = Label(self._top, image=self._tk_image)
-        self._panel.pack(side="bottom", fill="both", expand="yes")
-        #self._top.update_idletasks()
-        #self._top.update()
+        if self._panel is None:
+            self._panel = Label(self._top, image=self._tk_image)
+            self._panel.pack(side="bottom", fill="both", expand="yes")
+        else:
+            self._panel.configure(image=self._tk_image)
 
 bbemu = None
 

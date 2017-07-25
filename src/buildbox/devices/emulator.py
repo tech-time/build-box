@@ -1,6 +1,6 @@
 import threading
 
-from tkinter import Tk, Label, StringVar
+from tkinter import Tk, Label, StringVar, Canvas
 from tkinter.font import Font
 from PIL import ImageTk
 
@@ -12,8 +12,11 @@ class BuildBoxEmulator(threading.Thread):
         self._image = None
         self._panel = None
         self._tk_image = None
-        self._top = None
+        self._tpo = None
         self._digital_display_value = None
+
+        # Added: Graphic display for 7Led display (blinkt)
+        self._led_canvas = None
         self.start()
 
     def run(self):
@@ -21,7 +24,7 @@ class BuildBoxEmulator(threading.Thread):
         self._digital_display_value = StringVar()
         self._digital_display_value.set("42.17")
         # cf. https://www.google.fr/search?q=digital+7+ttf
-        myFont = Font(family="Digital-7", size=42)  # ,  weight="bold")
+        myFont = Font(family="\digital-7.ttf", size=42)  # ,  weight="bold")
         label = Label(self._top, textvariable=self._digital_display_value, font=myFont, fg="red", bg="black")
         label.pack()
         self._top.mainloop()
@@ -38,8 +41,21 @@ class BuildBoxEmulator(threading.Thread):
         else:
             self._panel.configure(image=self._tk_image)
 
-bbemu = None
+    # Update LED display
+    def update_led_display(self, ld):
+        if self._led_canvas is None:
+            self._led_canvas = Canvas(self._top, width=200, height=30)
+            self._led_canvas.pack()
+            self._led_canvas.create_rectangle(0, 0, 202, 26, fill="blue")
 
+        for i in range (8):
+            r, g, b, brightness = ld.get_pixel(i)
+            self._led_canvas.create_rectangle(i * 25 + 2, 2, i * 25 + 25, 24, fill='#%02x%02x%02x' % (r, g, b))
+            i=i+20
+
+
+
+bbemu = None
 if bbemu is None:
     bbemu = BuildBoxEmulator()
 
@@ -60,9 +76,6 @@ class EmulatedSSD1306_128_64:
 
     def display(self):
         pass
-
-    def image(self):
-        return self._image
 
     def image(self, image):
         bbemu.update_graphic_display(image)

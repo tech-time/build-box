@@ -9,10 +9,10 @@ except ImportError:
 from .oledmono import GraphicDisplay
 
 try:
-    from .leddisplay import LEDDisplay
+    from .ledbar import LEDDisplay
 except ImportError:
     print("Import Error while loading LEDDisplay module. " 
           "Using simulator instead.")
-    from .leddisplaysimulator import LEDDisplaySimulator as LEDDisplay
+    from .ledbarsimulator import LEDDisplaySimulator as LEDDisplay
 
 __all__ = [DigitalDisplay, GraphicDisplay, LEDDisplay]

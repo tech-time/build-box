@@ -1,17 +1,17 @@
-from .devices import DigitalDisplay, GraphicDisplay, LEDDisplay
+from .devices import DigitalDisplay, GraphicDisplay, rgbleds
 
 import time
 import colorsys
 
-from .builds import Builds, Builditem
+from .continuousintegration import Jobs, Builditem
 
 def main():
     print("Hello World!")
     dd = DigitalDisplay()
     gd = GraphicDisplay()
-    ld = LEDDisplay()
+    ld = rgbleds.RGBLeds()
 
-    bl=Builds()
+    bl=Jobs()
 
     spacing = 360.0 / 16.0
     hue = 0
@@ -34,11 +34,12 @@ def main():
             offset = x * spacing
             h = ((hue + offset) % 360) / 360.0
             r, g, b = [int(c * 255) for c in colorsys.hsv_to_rgb(h, 1.0, 1.0)]
+            #print( "h=", h,", r=" , r,", g=" ,g,", b=",b)
             ld.set_pixel(x, r, g, b)
         ld.show()
         time.sleep(0.5)
 
-    bl=Builds()
+    bl=Jobs()
     while True:
         bi=bl.getnextbuild()
         dd.display(bi.name)
@@ -54,7 +55,7 @@ def main():
             if (bi.status/100) > (x/8):
                 ld.set_pixel(x, r, g, b)
         #ld.set_pixel(2, 0, 0, bi.status*256/100)
-        ld.show()
+        ld.displayleds()
 
         time.sleep(1)
 

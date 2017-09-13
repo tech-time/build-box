@@ -16,22 +16,22 @@ Build interface
 from threading import Thread
 
 
-class Builds(Thread):
-    _index_=0
-    _builds_ = None
+class Jobs(Thread):
+    _index=0
+    _builds = None
 
     def __init__(self):
-        self._builds_ = [ Builditem(15, 50, "job1"),
-                          Builditem(30, 10, "job2"),
-                          Builditem(25, 90, "job3"),
-                          Builditem(75, 99, "job4"),
-                          Builditem(95, 75, "job5")]
-        self._index_=0
+        self._builds = [Builditem(15, 50, "job1"),
+                        Builditem(30, 10, "job2"),
+                        Builditem(25, 90, "job3"),
+                        Builditem(75, 99, "job4"),
+                        Builditem(95, 75, "job5")]
+        self._index=0
         pass
 
     def getnextbuild(self):
-        b = self._builds_[self._index_]
-        self._index_ = (self._index_ +1) % len(self._builds_)
+        b = self._builds[self._index]
+        self._index = (self._index + 1) % len(self._builds)
         return b
 
 

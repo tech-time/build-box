@@ -19,7 +19,7 @@ class BuildboxParameter:
                         self.parameters.append(paramName, value)
 
 
-        #Return the value associated to the parameter name or null
+        #Return the value associated to the parameter name or null if parameter does not exists
         def getParam(self, paramName):
                 if(paramName in self.parameters):
                         return self.parameters[paramName]
@@ -27,7 +27,7 @@ class BuildboxParameter:
                         return ''
 
 
-        #Read configuration from ini file
+        #Read configuration from ini file and add parameters
         def readConfigurationFromIniFile(self):
                 self.configParser.read(self.pathToConfigurationFile)
                 sections = self.configParser.sections()

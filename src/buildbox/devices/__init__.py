@@ -8,4 +8,7 @@ except ImportError:
 
 from .oledmono import GraphicDisplay
 
-__all__ = [DigitalDisplay, GraphicDisplay]
+from .rgbleds import RGBLeds
+
+
+__all__ = [DigitalDisplay, GraphicDisplay, RGBLeds]

@@ -22,8 +22,7 @@ class DigitalDisplay(Thread):
 
         super().__init__(daemon=True)
 
-        pi7seg.init(data_pin, clock_pin, latch_pin,
-                    registers, no_of_displays, common_cathode_type)
+        pi7seg.init(data_pin, clock_pin, latch_pin, registers, no_of_displays, common_cathode_type)
 
         atexit.register( self.clear_display )
         self.name = 'DigitalDisplay Thread'

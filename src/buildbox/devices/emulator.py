@@ -25,8 +25,8 @@ class BuildBoxEmulator(threading.Thread):
         # cf. https://www.google.fr/search?q=digital+7+ttf
         #myFont = Font(family="Digital-7", size=42)  # ,  weight="bold")
         # cf. https://fontlibrary.org/en/font/segment7
-        myFont = Font(family="Segment7", size=42)  # ,  weight="bold")
-        label = Label(self._top, textvariable=self._digital_display_value, font=myFont, fg="red", bg="black")
+        segments_font = Font(family="Segment7", size=42)  # ,  weight="bold")
+        label = Label(self._top, textvariable=self._digital_display_value, font=segments_font, fg="red", bg="black")
         label.pack()
         self._top.mainloop()
 
@@ -49,15 +49,12 @@ class BuildBoxEmulator(threading.Thread):
             self._led_canvas.pack()
             self._led_canvas.create_rectangle(0, 0, 202, 26, fill="blue")
 
-        for i in range (8):
+        for i in range(8):
             r, g, b, brightness = ld.get_pixel(i)
             self._led_canvas.create_rectangle(i * 25 + 2, 2, i * 25 + 25, 24, fill='#%02x%02x%02x' % (r, g, b))
-            i=i+20
 
 
-
-bbemu = None
-if bbemu is None:
+if 'bbemu' not in globals():
     bbemu = BuildBoxEmulator()
 
 

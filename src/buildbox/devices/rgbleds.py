@@ -1,11 +1,9 @@
-'''
-Blinkt 7 LED display module from PImoroni
-
-Adapted from the blinkt module available on https://github.com/pimoroni/blinkt
-
-'''
+# Blinkt 7 LED display module from PImoroni
+#
+# Adapted from the blinkt module available on https://github.com/pimoroni/blinkt
 
 rgbledsemulate = False
+
 try:
     # import needed to access the real blinkt display
     import blinkt
@@ -13,8 +11,6 @@ except ImportError:
     #if not there use alternative graphic emulator
     from .emulator import bbemu
     rgbledsemulate = True
-
-
 
 
 class RGBLeds():
@@ -31,7 +27,6 @@ class RGBLeds():
             raise RuntimeError("Digital Display can only be instanciated once")
         else:
             self.__initialized_once = True
-
 
     def set_brightness(self, brightness):
         """Set the brightness of all pixels
@@ -100,10 +95,8 @@ class RGBLeds():
         else:
             blinkt.set_pixel(x, r, g, b, brightness)
 
-
-    """Get the RGB and brightness value of a specific pixel"""
-
     def get_pixel(self, x):
+        """Get the RGB and brightness value of a specific pixel"""
         if rgbledsemulate:
             r, g, b, brightness = self.pixels[x]
             brightness /= 31.0

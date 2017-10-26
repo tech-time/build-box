@@ -10,14 +10,14 @@ Build interface
   - a project name
 
 
-  TODO : import jenkinsapi, connect to the server, read a list of builds from confiog file and translate job results
+  TODO : import jenkinsapi, connect to the server, read a list of builds from config file and translate job results
 '''
 
 from threading import Thread
 
 
 class Jobs(Thread):
-    _index=0
+    _index = 0
     _builds = None
 
     def __init__(self):

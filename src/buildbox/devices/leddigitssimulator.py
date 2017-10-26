@@ -3,6 +3,7 @@ import atexit
 import time
 from .emulator import bbemu
 
+
 class DigitalDisplay(Thread):
 
     __initialized_once = False

@@ -3,6 +3,7 @@ import os
 
 from buildbox.ci import BuildBoxJenkins
 
+# TODO: find an infrastructure agnostic way to test api or make the test optional
 def test_jenkins():
     jenkins_url = "https://factory-ixxi.noisy.ratp/jenkins"
     view = "API_IXXI_1545"

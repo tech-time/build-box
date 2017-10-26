@@ -5,6 +5,7 @@ import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
+
 class BuildBoxJenkins:
     def __init__(self, jenkins_url, username, password):
         self._jenkins = Jenkins(jenkins_url, username = username, password = password, ssl_verify = False)

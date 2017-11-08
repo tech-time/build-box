@@ -5,7 +5,6 @@ from .emulator import bbemu
 
 
 class DigitalDisplay(Thread):
-
     __initialized_once = False
     __EMPTY_DISPLAY = None
 
@@ -22,7 +21,7 @@ class DigitalDisplay(Thread):
 
         super().__init__(daemon=True)
 
-        atexit.register( self.clear_display )
+        atexit.register(self.clear_display)
         self.name = 'DigitalDisplay Thread'
         self.__EMPTY_DISPLAY = ' ' * no_of_displays
         self.__chars_to_display = self.__EMPTY_DISPLAY

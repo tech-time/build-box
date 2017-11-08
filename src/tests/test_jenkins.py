@@ -1,7 +1,7 @@
 import pytest
 import os
 
-from buildbox.ci import BuildBoxJenkins
+from ..buildbox.ci import BuildBoxJenkins
 
 # TODO: find an infrastructure agnostic way to test api or make the test optional
 def test_jenkins():

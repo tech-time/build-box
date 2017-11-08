@@ -1,7 +1,7 @@
 import pytest
 import os
 
-from buildbox.ci import BuildBoxJenkins
+from ..buildbox.ci import BuildBoxJenkins
 
 def test_jenkins():
     jenkins_url = "https://factory-ixxi.noisy.ratp/jenkins"

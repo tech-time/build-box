@@ -10,4 +10,4 @@ def test_jenkins():
     f = open(os.path.expanduser('~') + "/.mdp", "r")
     username,password=f.read().rstrip().split(":")
     jenkins = BuildBoxJenkins(jenkins_url, username, password)
-    info = jenkins.get_view_info(view)
+    info = jenkins.get_jobs_from_view(view)

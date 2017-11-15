@@ -1,28 +1,41 @@
-import colorsys
-import time
 import os
+import time
+import colorsys
 
-from .ci.jenkinsthread import JenkinsThread, BuildItem
+from .ci.jenkinsthread import JenkinsThread, JenkinsJob
+import jenkinsapi.custom_exceptions
 from .devices import DigitalDisplay, GraphicDisplay, RGBLeds
 from .conf import BuildboxParameter
 
 from PIL import Image
-from PIL import ImageDraw
-from PIL import ImageFont
+
+
+# Utility function (not used)
+def get_all_views(vl):
+    # get all views from jenkins server in a format that can be used in buildbox ini file
+    for (k, v), i in zip(vl.iteritems(), range(1,len(vl)+1)):
+        print("view%d: %s" % (i, k))
+def get_all_jobs(jl):
+    # get all jobs from jenkins server in a format that can be used in buildbox ini file
+    for (k, v), i in zip(jl.iteritems(), range(1, len(jl)+1)):
+        print("job%d: %s" % (i, k))
 
 def main():
     print("Hello World!")
-    dd = DigitalDisplay()
-    gd = GraphicDisplay()
-    ld = RGBLeds()
 
     STATUS_COLOR = {"SUCCESS":   RGBLeds.COLOR_GREEN,   # GREEN
                     "UNSTABLE":  RGBLeds.COLOR_RED,     # YELLOW
                     "FAILURE":   RGBLeds.COLOR_YELLOW,  # RED
                     "NOT_BUILT": RGBLeds.COLOR_GREY,    # GREY
-                    "ABORTED":   RGBLeds.COLOR_GREY     # GREY
+                    "ABORTED":   RGBLeds.COLOR_GREY,    # GREY
+                    "NO BUILD":  RGBLeds.COLOR_GREY     # GREY
                     }
-    STATUS = {True: "PASS", False: "FAIL"}
+    STATUS_MSG = {  "SUCCESS":   "PASS",
+                    "UNSTABLE":  "FAIL",
+                    "FAILURE":   "FAIL",
+                    "NOT_BUILT": "____",
+                    "ABORTED":   "FAIL",
+                    "NO BUILD":  "____"}
 
     # iconfile = "../../health-icons 32x32.bmp"
     iconfile = "buildbox/ressources/health-icons NB 32x32.bmp"
@@ -32,17 +45,23 @@ def main():
                       Image.open(iconfile).crop(( 97, 0, 128, 32)),  # 60-80% of recent builds failed
                       Image.open(iconfile).crop((129, 0, 160, 32)))  # all recent builds failed (> 80%)
 
-    def error(test, msg, abort=False):
+    dd = DigitalDisplay()
+    gd = GraphicDisplay()
+    ld = RGBLeds()
+
+    def error(test, msg, abort=False, rgbledscolor = RGBLeds.COLOR_RED, ddmsg = "Err", delay=5):
         if test:
-            dd.display("Err")
-            ld.display_all(RGBLeds.COLOR_RED)
+            dd.display(ddmsg)
+            ld.display_all(rgbledscolor)
             gd.clear()
             gd.displaytext(2, 2, msg[:21])
-            gd.displaytext(2, 14, msg[22:])
-            time.sleep(5)
+            gd.displaytext(2, 14, msg[21:])
+            time.sleep(delay)
             if abort:
                 exit(-1)
 
+    # ------------------------------------------------------------------------------------
+    # Start of old stuff : to remove later
     step = 0
     for i in range(5):
         gd.clear()
@@ -54,7 +73,7 @@ def main():
             dd.display('COOL')
         step = (step + 1) % 2
         gd.displaytext(2, 14, "\____<________>____/")
-        gd.displaytext(2, 26, 'Status=%s' % STATUS[step == 0])
+        gd.displaytext(2, 26, 'Status=PASS')
         gd.displayicon(72, 26, healthiconlist[int((100 - i * 5) / 20) - 1])
 
         hue = int(time.time() * 100) % 360
@@ -65,50 +84,75 @@ def main():
             color_list.append([int(c * 255) for c in colorsys.hsv_to_rgb(h, 1.0, 1.0)])
         ld.display(color_list)
         time.sleep(0.1)
+    # END of old stuf : to remove later
+    # ------------------------------------------------------------------------------------
 
-    gd.clear()
+    # Display waiting message
+    error(True, 'BuildBox start       Fetching jobs ...', False, RGBLeds.COLOR_GREY,"____", 0)
 
-    gd.displaytext(2, 2, 'Fetching jobs')
-    dd.display("....")
-    ld.display_all(RGBLeds.COLOR_GREY)
-
+    # Get parameters from parameter file
     params = BuildboxParameter(os.path.expanduser('~') + "/.buildbox")
     params.readConfigurationFromIniFile()
-    jenkins_url = params.getParam("url")                        # = "https://factory-ixxi.noisy.ratp/jenkins"
+
+    # Jenkins server URL
+    jenkins_url = params.getParam("url")                        # = "https://xxxxxxx/jenkins"
     error(jenkins_url == "", "Jenkins URL error", abort=True)
 
-    # jenkins_views=["SDK Calypso", "API_IXXI_1545", "SDK Calypso", "SDK Calypso"]
+    # Views to display
     jenkins_views = [view for key, view in params.configParser.items("views")]
-    error(len(jenkins_views) == 0, "No views", abort=False)
+    error(len(jenkins_views) == 0, "No views", False, RGBLeds.COLOR_YELLOW , "Wrng")
 
+    # Jobs to display
+    jenkins_jobs = [job for key, job in params.configParser.items("jobs")]
+    error(len(jenkins_jobs) == 0, "No jobs", False, RGBLeds.COLOR_YELLOW , "Wrng")
 
-    p = params.getParam("healthperiod")
-    if p != "":
-        BuildItem.health_period = p
+    error(len(jenkins_jobs) + len(jenkins_jobs) == 0, "No jobs, no views", abort=True)
 
-    #try:
-        bl = JenkinsThread(jenkins_url, jenkins_views)
-    #except jenkinsapi.custom_exceptions as jerr:
-    #    error(True, "Cannot connect to Jenkins", abort=True)
-    s = params.getParam("speed")  # time in seconds between 2 fetch on the jenkins server
-    if s != "":
-        bl.speed = int(s)
+    # Other parameters
+    JenkinsJob.health_period = params.getIntParam("healthperiod", JenkinsJob.health_period)
+    JenkinsThread.speed = params.getIntParam("speed", JenkinsThread.speed)  # time in seconds between 2 fetch on the jenkins server
+    sleeptime = params.getIntParam("buildboxspeed", 1)                      # delay between 2 display updates
 
+    try:
+        # try connecting to the jenkins server, with the URL and credential provided in the ini file
+        bl = JenkinsThread(jenkins_url, jenkins_views, jenkins_jobs)
+    except jenkinsapi.custom_exceptions as jerr:
+        error(True, "Cannot connect to Jenkins", abort=True)
 
+    #get_all_views(bl._bbj._jenkins.views)
+    #get_all_jobs(bl._bbj._jenkins.jobs)
+
+    waitmsg="_   "
     while True:
-        bi = bl.getNextBuild()
-        dd.display(STATUS[bi.last])
-        gd.clear()
-        gd.displaytext(2, 2, bi.name[:21])
-        gd.displaytext(2, 14, bi.name[22:])
-        gd.displaytext(2, 26, 'Status=%s' % STATUS[bi.last])
-        if bi.health >= 0:  # if health is not unknown
-            index = min(int((100 - bi.health) / 20),4)
-            #print("health = %d, index = %d"% (bi.health, index) )
-            gd.displayicon(72, 26, healthiconlist[index])
+        # TODO later
+        # if the 'advance or 'back' button is pressed then skip somme extra builds
+        # if <skipButtonPressed>:
+        #     bl.skipJobs(1)
+        # if <backButtonPressed>:
+        #     bl.skipJobs(-1)
+        # if <fastforwardButtonPressed>:
+        #     bl.skipJobs(10)
+        # if <faasBackwardButtonPressed>:
+        #     bl.skipJobs(-10)
 
-        ld.display([STATUS_COLOR[bi.history[h]] for h in bi.history])
-        time.sleep(1)
+        bi = bl.getNextBuild()
+        if bi == None:
+            dd.display(waitmsg)
+            waitmsg = waitmsg[3] + waitmsg[:3]
+            time.sleep(0.2)
+        else:
+            #print("Displayaing %s" % bi.name)
+            dd.display(STATUS_MSG[bi.last])
+            gd.clear()
+            gd.displaytext(2, 2, bi.name[:21])
+            gd.displaytext(2, 14, bi.name[22:])
+            gd.displaytext(2, 26, bi.view)
+            gd.displaytext(2, 38, 'Status=%s' % bi.last)
+            if bi.health >= 0:  # if health is not unknown
+                index = min(int((100 - bi.health) / 20),4)
+                gd.displayicon(96, 26, healthiconlist[index])
+            ld.display([STATUS_COLOR[h] for h in bi.history])
+            time.sleep(sleeptime)
 
 
 if __name__ == "__main__":

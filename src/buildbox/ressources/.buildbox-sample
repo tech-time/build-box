@@ -1,0 +1,22 @@
+#Configuration file for Buildbox
+# sample file to put in your home directory as ~/.buildbox
+#
+
+[jenkins]
+url: 			https://your-url/jenkins
+
+# jenkins username and password should be in ~/.mdp file as colon sepérated data
+# USERNAME:PASSWORD
+
+# delay between each update
+speed:			20
+
+#history depth to compute health indicator
+healthperiod:	10
+
+
+# View list
+[views]
+view1: XXXXXX
+view2: YYYY YYYY YYYY
+view3: ZZZ ZZZ ZZZ

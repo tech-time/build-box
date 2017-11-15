@@ -1,4 +1,3 @@
-import os, sys
 import configparser
 
 
@@ -23,13 +22,19 @@ class BuildboxParameter:
         else:
             return ''
 
+    # Return the int value associated to the parameter name or a given default value if parameter does not exist
+    def getIntParam(self, paramName, defaultValue = None):
+        v = self.getParam(paramName)
+        if v == "": # if not found or empty : returns the default value
+            return defaultValue
+        else:
+            return int(v)
+
     # Read configuration from ini file and add parameters
     def readConfigurationFromIniFile(self):
         self.configParser.read(self.pathToConfigurationFile)
-        sections = self.configParser.sections()
-        for section in sections:
-            options = self.configParser.options(section)
-            for option in options:
+        for section in self.configParser.sections():
+            for option in self.configParser.options(section):
                 try:
                     self.parameters[option] = self.configParser.get(section, option)
                     if self.parameters[option] == -1:

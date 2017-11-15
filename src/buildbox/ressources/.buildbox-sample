@@ -14,9 +14,19 @@ speed:			20
 #history depth to compute health indicator
 healthperiod:	10
 
+[buildbox]
+# Delay in second between 2 displays in the buildbox
+buildboxspeed:  3
+
 
 # View list
 [views]
 view1: XXXXXX
 view2: YYYY YYYY YYYY
 view3: ZZZ ZZZ ZZZ
+
+# Job list
+[jobs]
+job1: XXXXXX
+job2: YYYY YYYY YYYY
+job3: ZZZ ZZZ ZZZ

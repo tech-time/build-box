@@ -16,7 +16,7 @@ import time
 import os
 from threading import Thread
 
-from src.buildbox.ci import BuildBoxJenkins
+from .jenkins import BuildBoxJenkins
 
 
 class JenkinsThread(Thread):

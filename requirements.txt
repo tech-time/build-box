@@ -3,5 +3,3 @@ Adafruit-SSD1306==1.6.1
 Pi7SegPy==0.1.1
 Pillow
 jenkinsapi
-# Dev only
-pytest==3.1.3

@@ -1,9 +1,11 @@
 import configparser
+import os
 
 
 # Buildbox configuration class
-class BuildboxParameter:
-    def __init__(self, path):
+class BuildboxConfig:
+    def __init__(self):
+        path = os.path.expanduser('~') + "/.buildbox"
         self.parameters = dict()
         self.pathToConfigurationFile = path
         self.configParser = configparser.ConfigParser()

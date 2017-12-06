@@ -14,17 +14,32 @@ Build interface
 '''
 import time
 import os
+import logging
 from threading import Thread
 
 from .jenkins import BuildBoxJenkins
+
+log = logging.getLogger(__name__)
 
 
 class JenkinsThread(Thread):
     speed = 1
 
     def __init__(self, jenkins_url, view_Names, job_Names):
-        f = open(os.path.expanduser('~') + "/.mdp", "r")
-        username, password = f.read().rstrip().split(":")
+        username = None
+        password = None
+        credentials_filepath = os.path.expanduser('~') + "/.mdp"
+        try:
+            f = open(credentials_filepath, "r")
+            if f:
+                username, password = f.read().rstrip().split(":")
+            else:
+                log.warning("jenkins credential file not found: %s"
+                                                % credentials_filepath)
+        except IOError as e:
+            log.warning("Unable to open or read password file" 
+                        " %s (going anonymous): %s", credentials_filepath, e)
+
         self._bbj = BuildBoxJenkins(jenkins_url, username, password)
         self._views = view_Names
         self._jobs = job_Names

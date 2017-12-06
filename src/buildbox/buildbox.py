@@ -1,11 +1,10 @@
-import os
 import time
 import colorsys
 
 from .ci.jenkinsthread import JenkinsThread, JenkinsJob
-import jenkinsapi.custom_exceptions
+
 from .devices import DigitalDisplay, GraphicDisplay, RGBLeds
-from .conf import BuildboxParameter
+from .conf import BuildboxConfig
 
 from PIL import Image
 
@@ -15,10 +14,13 @@ def get_all_views(vl):
     # get all views from jenkins server in a format that can be used in buildbox ini file
     for (k, v), i in zip(vl.iteritems(), range(1,len(vl)+1)):
         print("view%d: %s" % (i, k))
+
+
 def get_all_jobs(jl):
     # get all jobs from jenkins server in a format that can be used in buildbox ini file
     for (k, v), i in zip(jl.iteritems(), range(1, len(jl)+1)):
         print("job%d: %s" % (i, k))
+
 
 def main():
     print("Hello World!")
@@ -91,20 +93,29 @@ def main():
     error(True, 'BuildBox start       Fetching jobs ...', False, RGBLeds.COLOR_GREY,"____", 0)
 
     # Get parameters from parameter file
-    params = BuildboxParameter(os.path.expanduser('~') + "/.buildbox")
+    params = BuildboxConfig()
     params.readConfigurationFromIniFile()
-
+    """"
+        import configparser
+        params = configparser.ConfigParser()
+        params.read(os.path.expanduser('~') + "/.buildbox")
+        jenkins_param = params["jenkins"]
+    
+        # Jenkins server URL
+        jenkins_url = ["url"]                        # = "https://xxxxxxx/jenkins"
+        print("xxxxx" + jenkins_param["url"])
+    """
     # Jenkins server URL
     jenkins_url = params.getParam("url")                        # = "https://xxxxxxx/jenkins"
     error(jenkins_url == "", "Jenkins URL error", abort=True)
 
     # Views to display
     jenkins_views = [view for key, view in params.configParser.items("views")]
-    error(len(jenkins_views) == 0, "No views", False, RGBLeds.COLOR_YELLOW , "Wrng")
+    error(len(jenkins_views) == 0, "No views", False, RGBLeds.COLOR_YELLOW, "Wrng")
 
     # Jobs to display
     jenkins_jobs = [job for key, job in params.configParser.items("jobs")]
-    error(len(jenkins_jobs) == 0, "No jobs", False, RGBLeds.COLOR_YELLOW , "Wrng")
+    error(len(jenkins_jobs) == 0, "No jobs", False, RGBLeds.COLOR_YELLOW, "Wrng")
 
     error(len(jenkins_jobs) + len(jenkins_jobs) == 0, "No jobs, no views", abort=True)
 
@@ -116,8 +127,8 @@ def main():
     try:
         # try connecting to the jenkins server, with the URL and credential provided in the ini file
         bl = JenkinsThread(jenkins_url, jenkins_views, jenkins_jobs)
-    except jenkinsapi.custom_exceptions as jerr:
-        error(True, "Cannot connect to Jenkins", abort=True)
+    except Exception as err:
+        error(True, "Problem during Jenkins thread creation: %s" % err, abort=True)
 
     #get_all_views(bl._bbj._jenkins.views)
     #get_all_jobs(bl._bbj._jenkins.jobs)

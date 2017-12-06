@@ -8,6 +8,9 @@ from .conf import BuildboxConfig
 
 from PIL import Image
 
+dd = DigitalDisplay()
+gd = GraphicDisplay()
+ld = RGBLeds()
 
 # Utility function (not used)
 def get_all_views(vl):
@@ -47,21 +50,6 @@ def main():
                       Image.open(iconfile).crop(( 97, 0, 128, 32)),  # 60-80% of recent builds failed
                       Image.open(iconfile).crop((129, 0, 160, 32)))  # all recent builds failed (> 80%)
 
-    dd = DigitalDisplay()
-    gd = GraphicDisplay()
-    ld = RGBLeds()
-
-    def error(test, msg, abort=False, rgbledscolor = RGBLeds.COLOR_RED, ddmsg = "Err", delay=5):
-        if test:
-            dd.display(ddmsg)
-            ld.display_all(rgbledscolor)
-            gd.clear()
-            gd.displaytext(2, 2, msg[:21])
-            gd.displaytext(2, 14, msg[21:])
-            time.sleep(delay)
-            if abort:
-                exit(-1)
-
     # ------------------------------------------------------------------------------------
     # Start of old stuff : to remove later
     step = 0
@@ -95,75 +83,75 @@ def main():
     # Get parameters from parameter file
     params = BuildboxConfig()
     params.readConfigurationFromIniFile()
-    """"
-        import configparser
-        params = configparser.ConfigParser()
-        params.read(os.path.expanduser('~') + "/.buildbox")
-        jenkins_param = params["jenkins"]
-    
-        # Jenkins server URL
-        jenkins_url = ["url"]                        # = "https://xxxxxxx/jenkins"
-        print("xxxxx" + jenkins_param["url"])
-    """
-    # Jenkins server URL
-    jenkins_url = params.getParam("url")                        # = "https://xxxxxxx/jenkins"
-    error(jenkins_url == "", "Jenkins URL error", abort=True)
 
-    # Views to display
-    jenkins_views = [view for key, view in params.configParser.items("views")]
-    error(len(jenkins_views) == 0, "No views", False, RGBLeds.COLOR_YELLOW, "Wrng")
-
-    # Jobs to display
-    jenkins_jobs = [job for key, job in params.configParser.items("jobs")]
-    error(len(jenkins_jobs) == 0, "No jobs", False, RGBLeds.COLOR_YELLOW, "Wrng")
-
-    error(len(jenkins_jobs) + len(jenkins_jobs) == 0, "No jobs, no views", abort=True)
-
-    # Other parameters
-    JenkinsJob.health_period = params.getIntParam("healthperiod", JenkinsJob.health_period)
-    JenkinsThread.speed = params.getIntParam("speed", JenkinsThread.speed)  # time in seconds between 2 fetch on the jenkins server
-    sleeptime = params.getIntParam("buildboxspeed", 1)                      # delay between 2 display updates
-
-    try:
-        # try connecting to the jenkins server, with the URL and credential provided in the ini file
-        bl = JenkinsThread(jenkins_url, jenkins_views, jenkins_jobs)
-    except Exception as err:
-        error(True, "Problem during Jenkins thread creation: %s" % err, abort=True)
-
-    #get_all_views(bl._bbj._jenkins.views)
-    #get_all_jobs(bl._bbj._jenkins.jobs)
+    sleeptime = params.getIntParam("buildboxspeed", 1)  # delay between 2 display updates
+    ci_server = init_ci_server(params)
 
     waitmsg="_   "
     while True:
         # TODO later
         # if the 'advance or 'back' button is pressed then skip somme extra builds
         # if <skipButtonPressed>:
-        #     bl.skipJobs(1)
+        #     ci_server.skipJobs(1)
         # if <backButtonPressed>:
-        #     bl.skipJobs(-1)
+        #     ci_server.skipJobs(-1)
         # if <fastforwardButtonPressed>:
-        #     bl.skipJobs(10)
+        #     ci_server.skipJobs(10)
         # if <faasBackwardButtonPressed>:
-        #     bl.skipJobs(-10)
+        #     ci_server.skipJobs(-10)
 
-        bi = bl.getNextBuild()
-        if bi == None:
+        build = ci_server.getNextBuild()
+        if build is None:
             dd.display(waitmsg)
             waitmsg = waitmsg[3] + waitmsg[:3]
             time.sleep(0.2)
         else:
-            #print("Displayaing %s" % bi.name)
-            dd.display(STATUS_MSG[bi.last])
+            dd.display(STATUS_MSG[build.last])
             gd.clear()
-            gd.displaytext(2, 2, bi.name[:21])
-            gd.displaytext(2, 14, bi.name[22:])
-            gd.displaytext(2, 26, bi.view)
-            gd.displaytext(2, 38, 'Status=%s' % bi.last)
-            if bi.health >= 0:  # if health is not unknown
-                index = min(int((100 - bi.health) / 20),4)
+            gd.displaytext(2, 2, build.name[:21])
+            gd.displaytext(2, 14, build.name[22:])
+            gd.displaytext(2, 26, build.view)
+            gd.displaytext(2, 38, 'Status=%s' % build.last)
+            if build.health >= 0:  # if health is not unknown
+                index = min(int((100 - build.health) / 20),4)
                 gd.displayicon(96, 26, healthiconlist[index])
-            ld.display([STATUS_COLOR[h] for h in bi.history])
+            ld.display([STATUS_COLOR[h] for h in build.history])
             time.sleep(sleeptime)
+
+
+def error(test, msg, abort=False, rgbledscolor = RGBLeds.COLOR_RED, ddmsg = "Err", delay=5):
+    if test:
+        dd.display(ddmsg)
+        ld.display_all(rgbledscolor)
+        gd.clear()
+        gd.displaytext(2, 2, msg[:21])
+        gd.displaytext(2, 14, msg[21:])
+        time.sleep(delay)
+        if abort:
+            exit(-1)
+
+
+def init_ci_server(params):
+    # Jenkins server URL
+    jenkins_url = params.getParam("url")  # = "https://xxxxxxx/jenkins"
+    error(jenkins_url == "", "Jenkins URL error", abort=True)
+    # Views to display
+    jenkins_views = [view for key, view in params.configParser.items("views")]
+    error(len(jenkins_views) == 0, "No views", False, RGBLeds.COLOR_YELLOW, "Wrng")
+    # Jobs to display
+    jenkins_jobs = [job for key, job in params.configParser.items("jobs")]
+    error(len(jenkins_jobs) == 0, "No jobs", False, RGBLeds.COLOR_YELLOW, "Wrng")
+    error(len(jenkins_jobs) + len(jenkins_jobs) == 0, "No jobs, no views", abort=True)
+    # Other parameters
+    JenkinsJob.health_period = params.getIntParam("healthperiod", JenkinsJob.health_period)
+    JenkinsThread.speed = params.getIntParam("speed",
+                                             JenkinsThread.speed)  # time in seconds between 2 fetch on the jenkins server
+    try:
+        # try connecting to the jenkins server, with the URL and credential provided in the ini file
+        ci_server = JenkinsThread(jenkins_url, jenkins_views, jenkins_jobs)
+    except Exception as err:
+        error(True, "Problem during Jenkins thread creation: %s" % err, abort=True)
+    return ci_server
 
 
 if __name__ == "__main__":

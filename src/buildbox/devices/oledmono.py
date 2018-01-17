@@ -56,3 +56,22 @@ class GraphicDisplay:
         self.draw.rectangle((0, 0, self.width - 1, self.height - 1), outline=255, fill=0)
         self.disp.clear()
         self.refresh()
+
+""" Enhanced Display API Proposal: """
+    def add_image(image_or_path, x, y):
+        # add an image to the list of icons on the screen
+        pass
+
+    def printxy(string, x, y, font=None, invert=False):
+        # add an string at a given x/y position
+        pass
+
+    def print(string): # add a string to the buffer and refresh screen
+        pass
+
+    def _render():
+        # _render_text()   # render text parts
+        # _render_images() # render images (over text, could be used for frames)
+        # _render_xytext() # render x/y text (over text and frames)
+        pass
+    # add _clear_image, _clear_xy_text, _clear_text

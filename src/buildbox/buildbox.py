@@ -56,15 +56,15 @@ def main():
     for i in range(5):
         gd.clear()
         if step == 0:
-            gd.displaytext(2, 2, "/--- Dude Cool !---\\")
+            gd.add_text("/--- Dude Cool !---\\", 2, 2)
             dd.display('dudE')
         else:
-            gd.displaytext(2, 2, "/--- Cool Dude !---\\")
+            gd.add_text("/--- Cool Dude !---\\", 2, 2)
             dd.display('COOL')
         step = (step + 1) % 2
-        gd.displaytext(2, 14, "\____<________>____/")
-        gd.displaytext(2, 26, 'Status=PASS')
-        gd.displayicon(72, 26, healthiconlist[int((100 - i * 5) / 20) - 1])
+        gd.add_text("\____<________>____/", 2, 14)
+        gd.add_text('Status=PASS', 2, 26)
+        gd.add_image(healthiconlist[int((100 - i * 5) / 20) - 1], 72, 26, invert=True)
 
         hue = int(time.time() * 100) % 360
         color_list = []
@@ -108,13 +108,13 @@ def main():
         else:
             dd.display(STATUS_MSG[build.last])
             gd.clear()
-            gd.displaytext(2, 2, build.name[:21])
-            gd.displaytext(2, 14, build.name[22:])
-            gd.displaytext(2, 26, build.view)
-            gd.displaytext(2, 38, 'Status=%s' % build.last)
+            gd.add_text(build.name[:21], 2, 2)
+            gd.add_text(build.name[22:], 2, 14)
+            gd.add_text(build.view, 2, 26)
+            gd.add_text('Status=%s' % build.last, 2, 38)
             if build.health >= 0:  # if health is not unknown
                 index = min(int((100 - build.health) / 20),4)
-                gd.displayicon(96, 26, healthiconlist[index])
+                gd.add_image(healthiconlist[index], 96, 26, invert=True)
             ld.display([STATUS_COLOR[h] for h in build.history])
             time.sleep(sleeptime)
 
@@ -124,8 +124,8 @@ def error(test, msg, abort=False, rgbledscolor = RGBLeds.COLOR_RED, ddmsg = "Err
         dd.display(ddmsg)
         ld.display_all(rgbledscolor)
         gd.clear()
-        gd.displaytext(2, 2, msg[:21])
-        gd.displaytext(2, 14, msg[21:])
+        gd.add_text(msg[:21], 2, 2)
+        gd.add_text(msg[21:], 2, 14)
         time.sleep(delay)
         if abort:
             exit(-1)

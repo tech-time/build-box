@@ -26,3 +26,14 @@ Working directory : C:\Users\XXXXX\PycharmProjects\build-box\src
 #### Run main (in src)
 `(build-box-venv) pi@raspberrypi:~/projects/build-box/src $ python -m buildbox.buildbox`
 
+### Parameters
+#### Jenkins API Authentication
+
+Create a *.mdp* file in your home directory :
+~~~~
+<user>:<token>
+~~~~
+
+Your token is to be generated on your jenkins account : click on *my account --> configure --> show API token*
+
+
